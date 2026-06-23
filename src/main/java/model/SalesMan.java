@@ -2,7 +2,7 @@ package model;
 
 public class SalesMan {
 	
-	//Atributs
+	//Attributes
 	
 	private int salesManId;
 	private String name;
