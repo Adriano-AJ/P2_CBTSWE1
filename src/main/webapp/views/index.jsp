@@ -6,7 +6,6 @@
         <div class="absolute right-0 top-0 opacity-10 text-9xl transform translate-x-10 -translate-y-10 text-brand-purple">
             <i class="fa-solid fa-laptop-code"></i>
         </div>
-        <span class="bg-brand-purple text-xs uppercase tracking-widest font-extrabold px-3 py-1 rounded-full text-white">Projeto Acadêmico</span>
         <h1 class="text-3xl md:text-4xl font-black mt-4 tracking-tight">Painel de Controle de Vendas</h1>
     </div>
 

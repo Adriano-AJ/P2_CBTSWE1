@@ -6,7 +6,6 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-black text-brand-black tracking-tight">Carteira de Clientes</h1>
-            <p class="text-xs text-gray-500">Listagem de registros mapeados pela tabela customer.</p>
         </div>
         <a href="${pageContext.request.contextPath}/views/customer/form.jsp" class="bg-brand-purple hover:bg-brand-purple-dark text-white px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider shadow transition">
             <i class="fa-solid fa-plus mr-2"></i> Novo Cliente
