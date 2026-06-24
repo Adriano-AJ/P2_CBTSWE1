@@ -61,7 +61,7 @@ public class OrdersServlet extends HttpServlet {
             dao = new OrdersDao();
             List<Orders> orders = dao.findAll();
             req.setAttribute("orders", orders);
-            req.getRequestDispatcher("/WEB-INF/views/orders.jsp")
+            req.getRequestDispatcher("/views/orders/list.jsp")
                .forward(req, res);
 
         } catch (SQLException e) {

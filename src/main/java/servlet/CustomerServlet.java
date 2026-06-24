@@ -56,7 +56,7 @@ public class CustomerServlet extends HttpServlet {
             dao = new CustomerDao();
             List<Customer> customers = dao.findAll();
             req.setAttribute("customers", customers);
-            req.getRequestDispatcher("/WEB-INF/views/customers.jsp")
+            req.getRequestDispatcher("/views/customer/list.jsp")
                .forward(req, res);
 
         } catch (SQLException e) {
