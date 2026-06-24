@@ -36,7 +36,6 @@
                 </div>
                 <div>
                     <span class="font-extrabold text-lg block tracking-wider uppercase text-white">SalesApp</span>
-                    <span class="text-xs text-gray-400 block -mt-1">IFSP Campus Cubatão</span>
                 </div>
             </div>
             <div class="flex space-x-6 font-semibold text-sm tracking-wide">
