@@ -24,18 +24,35 @@ public class SalesMan {
 	
 	// Getters and Setters
 
-	public int getSalesMan() {
+	public int getSalesManId() {
 		return salesManId;
+	}
+	
+	public void setSalesManId(int salesManId) {
+		this.salesManId = salesManId;
 	}
 	
 	public String getName() {
 		return name;
 	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
 	public String getCity() {
 		return city;
 	}
-	public double getCommssion() {
+	
+	public void setCity(String city) {
+		this.city = city;
+	}
+	
+	public double getCommission() {
 		return commission;
+	}
+	
+	public void setCommission(double commission) {
+		this.commission = commission;
 	}
 	
 	@Override
@@ -48,6 +65,8 @@ public class SalesMan {
                ", commission=" + commission  +
                '}';
     }
+
+	
 
 
 }
