@@ -1,6 +1,8 @@
 package servlet;
 
+import dao.CustomerDao;
 import dao.OrdersDao;
+import dao.SalesManDao;
 import model.Orders;
 
 import javax.servlet.ServletException;
@@ -10,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,12 +22,25 @@ import java.util.List;
 public class OrdersServlet extends HttpServlet {
 
     // -------------------------------------------------------------------------
-    // GET  → lista todas as ordens (ou filtra por customerId / salesmanId)
+    // GET  → lista todas as ordens, ou carrega form para new/edit
     // -------------------------------------------------------------------------
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
-        list(req, res);
+        
+        req.setCharacterEncoding("UTF-8");
+        String action = req.getParameter("action");
+        if (action == null) action = "";
+
+        switch (action) {
+            case "new":
+            case "edit":
+                showForm(req, res);
+                break;
+            default:
+                list(req, res);
+                break;
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -36,16 +50,19 @@ public class OrdersServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
 
+        req.setCharacterEncoding("UTF-8");
         String action = req.getParameter("action");
-
         if (action == null) action = "";
 
         switch (action) {
             case "delete":
                 delete(req, res);
                 break;
-            default:          // "save" (insert ou update)
+            case "save":
                 save(req, res);
+                break;
+            default:
+                list(req, res);
                 break;
         }
     }
@@ -72,7 +89,43 @@ public class OrdersServlet extends HttpServlet {
     }
 
     // -------------------------------------------------------------------------
-    // save – insere uma nova ordem ou atualiza uma existente
+    // showForm – carrega a ordem (se edit) e as listas de clientes e vendedores
+    // -------------------------------------------------------------------------
+    private void showForm(HttpServletRequest req, HttpServletResponse res)
+            throws ServletException, IOException {
+        
+        OrdersDao dao = null;
+        CustomerDao customerDao = null;
+        SalesManDao salesManDao = null;
+
+        try {
+            customerDao = new CustomerDao();
+            salesManDao = new SalesManDao();
+            
+            // Envia as listas para alimentar os selects na JSP
+            req.setAttribute("listaClientes", customerDao.findAll());
+            req.setAttribute("listaVendedores", salesManDao.findAll());
+
+            String ordNoParam = req.getParameter("ordNo");
+            if (ordNoParam != null && !ordNoParam.trim().isEmpty()) {
+                dao = new OrdersDao();
+                Orders order = dao.findById(Integer.parseInt(ordNoParam.trim()));
+                req.setAttribute("order", order);
+            }
+
+            req.getRequestDispatcher("/views/orders/form.jsp").forward(req, res);
+
+        } catch (SQLException e) {
+            throw new ServletException("Erro ao carregar formulário: " + e.getMessage(), e);
+        } finally {
+            if (customerDao != null) try { customerDao.close(); } catch (SQLException ignored) {}
+            if (salesManDao != null) try { salesManDao.close(); } catch (SQLException ignored) {}
+            closeDao(dao);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // save – insere nova (auto-gerada ou manual) ou atualiza existente
     // -------------------------------------------------------------------------
     private void save(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
@@ -82,11 +135,21 @@ public class OrdersServlet extends HttpServlet {
             Orders order = buildOrderFromRequest(req);
             dao = new OrdersDao();
 
-            // Se ordNo == 0 é insert; caso contrário é update
             if (order.getOrdNo() == 0) {
+                // Auto-gera o ID se foi submetido em branco
+                List<Orders> all = dao.findAll();
+                int nextId = all.isEmpty() ? 1 
+                           : all.stream().mapToInt(Orders::getOrdNo).max().getAsInt() + 1;
+                order.setOrdNo(nextId);
                 dao.insert(order);
             } else {
-                dao.update(order);
+                // Verifica se já existe para decidir entre insert/update
+                Orders existing = dao.findById(order.getOrdNo());
+                if (existing == null) {
+                    dao.insert(order);
+                } else {
+                    dao.update(order);
+                }
             }
 
             res.sendRedirect(req.getContextPath() + "/orders");
@@ -158,7 +221,6 @@ public class OrdersServlet extends HttpServlet {
         return order;
     }
 
-    /** Fecha o DAO com segurança para evitar connection leak. */
     private void closeDao(OrdersDao dao) {
         if (dao != null) {
             try { dao.close(); } catch (SQLException ignored) {}

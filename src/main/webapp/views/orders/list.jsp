@@ -40,18 +40,22 @@
                                 R$ <fmt:formatNumber value="${ord.purchAmt}" minFractionDigits="2" maxFractionDigits="2"/>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <div class="flex justify-center items-center space-x-3">
-                                    <a href="${pageContext.request.contextPath}/orders?action=edit&id=${ord.ordNo}" class="text-brand-black hover:text-brand-purple p-1.5 rounded transition">
-                                        <i class="fa-solid fa-pen-to-square text-base"></i>
-                                    </a>
-                                    <form action="${pageContext.request.contextPath}/orders?action=delete" method="POST" onsubmit="return confirm('Anular esta ordem permanentemente?');" class="inline">
-                                        <input type="hidden" name="ordNo" value="${ord.ordNo}">
-                                        <button type="submit" class="text-gray-400 hover:text-red-600 p-1.5 rounded transition">
-                                            <i class="fa-solid fa-trash text-base"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+							    <div class="flex justify-center items-center space-x-3">
+							        
+							        <a href="${pageContext.request.contextPath}/orders?action=edit&ordNo=${ord.ordNo}" class="text-brand-black hover:text-brand-purple p-1.5 rounded transition" title="Editar Ordem">
+							            <i class="fa-solid fa-pen-to-square text-base"></i>
+							        </a>
+							
+							        <form action="${pageContext.request.contextPath}/orders" method="POST" onsubmit="return confirm('Anular esta ordem permanentemente?');" class="inline">
+							            <input type="hidden" name="action" value="delete">
+							            <input type="hidden" name="ordNo" value="${ord.ordNo}">
+							            <button type="submit" class="text-gray-400 hover:text-red-600 p-1.5 rounded transition" title="Excluir Ordem">
+							                <i class="fa-solid fa-trash text-base"></i>
+							            </button>
+							        </form>
+							        
+							    </div>
+							</td>
                         </tr>
                     </c:forEach>
                     <c:if test="${empty orders}">

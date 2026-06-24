@@ -17,12 +17,24 @@ import java.util.List;
 public class CustomerServlet extends HttpServlet {
 
     // -------------------------------------------------------------------------
-    // GET → lista todos os clientes
+    // GET → lista todos os clientes (agora também atende edição)
     // -------------------------------------------------------------------------
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
-        list(req, res);
+        
+        req.setCharacterEncoding("UTF-8");
+        String action = req.getParameter("action");
+        if (action == null) action = "";
+
+        switch (action) {
+            case "edit":
+                edit(req, res);
+                break;
+            default:
+                list(req, res);
+                break;
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -32,6 +44,7 @@ public class CustomerServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
 
+        req.setCharacterEncoding("UTF-8");
         String action = req.getParameter("action");
         if (action == null) action = "";
 
@@ -39,14 +52,17 @@ public class CustomerServlet extends HttpServlet {
             case "delete":
                 delete(req, res);
                 break;
-            default: // "save" → insert ou update
+            case "save":
                 save(req, res);
+                break;
+            default:
+                list(req, res);
                 break;
         }
     }
 
     // -------------------------------------------------------------------------
-    // list
+    // list – lê todos os clientes e encaminha para a JSP
     // -------------------------------------------------------------------------
     private void list(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
@@ -67,7 +83,27 @@ public class CustomerServlet extends HttpServlet {
     }
 
     // -------------------------------------------------------------------------
-    // save – insert se customerId == 0, update caso contrário
+    // edit – carrega um cliente específico para o formulário
+    // -------------------------------------------------------------------------
+    private void edit(HttpServletRequest req, HttpServletResponse res)
+            throws ServletException, IOException {
+        CustomerDao dao = null;
+        try {
+            int customerId = Integer.parseInt(req.getParameter("customerId"));
+            dao = new CustomerDao();
+            Customer customer = dao.findById(customerId);
+            
+            req.setAttribute("customer", customer);
+            req.getRequestDispatcher("/views/customer/form.jsp").forward(req, res);
+        } catch (SQLException e) {
+            throw new ServletException("Erro ao buscar cliente: " + e.getMessage(), e);
+        } finally {
+            closeDao(dao);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // save – insere novo (auto-gerado ou manual) ou atualiza existente
     // -------------------------------------------------------------------------
     private void save(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
@@ -78,9 +114,20 @@ public class CustomerServlet extends HttpServlet {
             dao = new CustomerDao();
 
             if (customer.getCustomerId() == 0) {
+                // Auto-gera o ID se foi submetido em branco
+                List<Customer> all = dao.findAll();
+                int nextId = all.isEmpty() ? 1 
+                           : all.stream().mapToInt(Customer::getCustomerId).max().getAsInt() + 1;
+                customer.setCustomerId(nextId);
                 dao.insert(customer);
             } else {
-                dao.update(customer);
+                // Se já existe, atualiza. Se não existe, cria com o ID forçado.
+                Customer existing = dao.findById(customer.getCustomerId());
+                if (existing == null) {
+                    dao.insert(customer);
+                } else {
+                    dao.update(customer);
+                }
             }
 
             res.sendRedirect(req.getContextPath() + "/customers");
@@ -93,7 +140,7 @@ public class CustomerServlet extends HttpServlet {
     }
 
     // -------------------------------------------------------------------------
-    // delete
+    // delete – remove o cliente pelo CUSTOMER_ID
     // -------------------------------------------------------------------------
     private void delete(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
@@ -106,7 +153,7 @@ public class CustomerServlet extends HttpServlet {
             res.sendRedirect(req.getContextPath() + "/customers");
 
         } catch (SQLException e) {
-            throw new ServletException("Erro ao deletar cliente: " + e.getMessage(), e);
+            throw new ServletException("Erro ao deletar cliente. Verifique se ele não possui ordens de venda atreladas: " + e.getMessage(), e);
         } finally {
             closeDao(dao);
         }

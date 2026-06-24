@@ -22,9 +22,18 @@
         <form action="${pageContext.request.contextPath}/orders?action=save" method="POST" class="p-6 space-y-4">
             
             <div>
-                <label for="ordNo" class="block text-xs font-bold uppercase tracking-wide text-gray-600 mb-1">Número da Ordem (Código Único)</label>
-                <input type="number" id="ordNo" name="ordNo" value="${order.ordNo}" 
-                       ${order != null ? 'readonly class="bg-gray-100 border border-gray-300 text-gray-400 rounded-lg w-full px-3 py-2 font-mono text-sm focus:outline-none cursor-not-allowed"' : 'class="border border-gray-300 rounded-lg w-full px-3 py-2 font-mono text-sm focus:ring-2 focus:ring-brand-purple focus:border-brand-purple outline-none" required placeholder="Ex: 5001"'} />
+                <label for="ordNo" class="block text-xs font-bold uppercase tracking-wide text-gray-600 mb-1">Número da Ordem (ID)</label>
+                <c:choose>
+                    <c:when test="${order != null}">
+                        <input type="number" id="ordNo" name="ordNo" value="${order.ordNo}" readonly 
+                               class="bg-gray-100 border border-gray-300 text-gray-400 rounded-lg w-full px-3 py-2 font-mono text-sm focus:outline-none cursor-not-allowed" />
+                    </c:when>
+                    <c:otherwise>
+                        <input type="number" id="ordNo" name="ordNo" 
+                               class="border border-gray-300 rounded-lg w-full px-3 py-2 font-mono text-sm focus:ring-2 focus:ring-brand-purple focus:border-brand-purple outline-none" 
+                               placeholder="Deixe em branco para auto-gerar" />
+                    </c:otherwise>
+                </c:choose>
             </div>
 
             <div>

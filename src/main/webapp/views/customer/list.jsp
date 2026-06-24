@@ -34,15 +34,21 @@
                             <td class="px-6 py-4 text-center font-bold text-gray-700">${cust.grade}</td>
                             <td class="px-6 py-4 text-center font-mono text-xs font-bold text-brand-purple-dark">#${cust.salesmanId}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <div class="flex justify-center items-center space-x-3">
-                                    <form action="${pageContext.request.contextPath}/customers?action=delete" method="POST" onsubmit="return confirm('Excluir este cliente?');" class="inline">
-                                        <input type="hidden" name="customerId" value="${cust.customerId}">
-                                        <button type="submit" class="text-gray-400 hover:text-red-600 p-1.5 rounded transition">
-                                            <i class="fa-solid fa-trash text-base"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+							    <div class="flex justify-center items-center space-x-3">
+							        <a href="${pageContext.request.contextPath}/customers?action=edit&customerId=${cust.customerId}" 
+							           class="text-gray-400 hover:text-brand-purple p-1.5 rounded transition" title="Editar Cliente">
+							            <i class="fa-solid fa-pen-to-square text-base"></i>
+							        </a>
+							
+							        <form action="${pageContext.request.contextPath}/customers" method="POST" onsubmit="return confirm('Excluir este cliente definitivamente?');" class="inline">
+							            <input type="hidden" name="action" value="delete">
+							            <input type="hidden" name="customerId" value="${cust.customerId}">
+							            <button type="submit" class="text-gray-400 hover:text-red-600 p-1.5 rounded transition" title="Excluir Cliente">
+							                <i class="fa-solid fa-trash text-base"></i>
+							            </button>
+							        </form>
+							    </div>
+							</td>
                         </tr>
                     </c:forEach>
                     <c:if test="${empty customers}">

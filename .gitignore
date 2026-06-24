@@ -1,0 +1,7 @@
+# Pastas de compilação do Maven
+target/
+
+# Arquivos e pastas de configuração do Eclipse
+.settings/
+.classpath
+.project
